@@ -1,0 +1,126 @@
+pipeline {
+    environment {
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+        BUILD_RESULT_PATH = '/home/jenkins/build_result'
+        TEST_RESULT_PATH = '/home/jenkins/test_result'
+        AZURE_STORAGE_ACCOUNT_NAME = 'appsharedstorageaccount'
+        AZURE_STORAGE_BUILD_BLOB = 'buildresult'
+        AZURE_STORAGE_TEST_BLOB = 'testresult'
+        AZURE_JENKINS_AGENT_VM_NAME = 'jenkins-vm'
+        AZURE_JENKINS_AGENT_RESOURCE_GROUP = 'jenkins-rg'
+        AZURE_STORAGE_ACCOUNT_KEY = credentials('storageaccountkey')
+        SONAR_TOKEN = credentials('sonarqube_token')
+        
+    }
+   
+    agent any
+
+    tools {
+        maven 'MAVEN'
+    }
+
+    stages {
+        stage('Start Jenkins Agent') {
+            agent {
+                label 'Jenkins-Master'
+            }
+            steps {
+                script {
+                    sh '''
+                        az vm start \
+                        --name ${AZURE_JENKINS_AGENT_VM_NAME} \
+                        --resource-group ${AZURE_JENKINS_AGENT_RESOURCE_GROUP} 
+
+                    '''
+                }
+            }
+            sleep(secs: 100, unit: 'SECONDS')
+        }
+
+        stage('Build Code') {
+            agent {
+                label 'Jenkins-Agent'
+            }
+            steps {
+                dir('Cinema_Code') {
+                    sh 'mvn clean package -DskipTests'
+                    sh 'cp target/*.jar ${BUILD_RESULT_PATH}'
+                }
+            }
+        }
+
+        stage('Test Code') {
+            agent {
+                label 'Jenkins-Agent'
+            }
+            steps {
+                dir('Cinema_Code') {
+                    sh 'mvn clean test'
+                    sh 'cp -r target/surefire-reports ${TEST_RESULT_PATH}'
+                }
+            }
+        }
+        
+        stage('SonarQube analysis') {
+            agent {
+                label 'Jenkins-Agent'
+            }
+            steps {
+                dir ('Cinema_Code') {
+                    sh "mvn clean verify sonar:sonar -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
+        
+        stage('Deploy Build Result') {
+            agent {
+                label 'Jenkins-Agent'
+            }
+            steps {
+                script {
+                    sh '''
+                        az storage blob upload-batch \
+                        -d ${AZURE_STORAGE_BUILD_BLOB} \
+                        --account-name ${AZURE_STORAGE_ACCOUNT_NAME} \
+                        --account-key ${AZURE_STORAGE_ACCOUNT_KEY} \
+                        -s ${BUILD_RESULT_PATH} \
+                        --overwrite
+                    '''
+                }
+            }
+        }
+        
+        stage ('Deploy Test Result') {
+            agent {
+                label 'Jenkins-Agent'
+            }
+            steps {
+                script {
+                    sh '''
+                        az storage blob upload-batch \
+                        -d  ${AZURE_STORAGE_TEST_BLOB}\
+                        --account-name ${AZURE_STORAGE_ACCOUNT_NAME} \
+                        --account-key ${AZURE_STORAGE_ACCOUNT_KEY} \
+                        -s ${TEST_RESULT_PATH} \
+                        --overwrite
+                    '''
+                }
+            }
+        }
+
+        stage('Stop Jenkins Agent') {
+            agent {
+                label 'Jenkins-Master'
+            }
+            steps {
+                script {
+                    sh '''
+                        az vm stop  \
+                        --name ${AZURE_JENKINS_AGENT_VM_NAME} \
+                        --resource-group ${AZURE_JENKINS_AGENT_RESOURCE_GROUP} 
+                    '''
+                }
+            }
+        }
+    }
+}
