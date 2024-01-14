@@ -40,7 +40,7 @@ class TicketTest {
     void testPrix() {
         double expectedPrix = 25.0;
         ticket.setPrix(expectedPrix);
-        assertEquals(expectedPrix, ticket.getPrix(), 0.001); // Specify a delta for double comparison
+        assertEquals(expectedPrix, ticket.getPrix(), 0.001); 
     }
 
     @Test
@@ -52,7 +52,7 @@ class TicketTest {
 
     @Test
     void testReserve() {
-        assertFalse(ticket.isReserve()); // By default, should be false
+        assertFalse(ticket.isReserve()); 
         ticket.setReserve(true);
         assertTrue(ticket.isReserve());
     }

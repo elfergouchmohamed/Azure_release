@@ -77,6 +77,5 @@ class CinemaTest {
         cinema.setVille(mockVille);
         assertEquals(mockVille, cinema.getVille());
     }
-
-    // Add more tests as needed for specific behavior or validation rules
+    
 }

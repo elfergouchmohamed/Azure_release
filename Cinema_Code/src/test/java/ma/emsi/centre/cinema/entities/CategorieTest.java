@@ -42,6 +42,5 @@ class CategorieTest {
         categorie.setFilms(expectedFilms);
         assertEquals(expectedFilms, categorie.getFilms());
     }
-
-    // Add more tests as needed for specific behavior or validation rules
+    
 }

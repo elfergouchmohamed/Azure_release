@@ -61,6 +61,5 @@ class VilleTest {
         ville.setCinemas(expectedCinemas);
         assertEquals(expectedCinemas, ville.getCinemas());
     }
-
-    // Add more tests as needed for specific behavior or validation rules
+    
 }

@@ -67,5 +67,4 @@ class SalleTest {
         assertEquals(expectedProjections, salle.getProjections());
     }
 
-    // Add more tests as needed for specific behavior or validation rules
 }

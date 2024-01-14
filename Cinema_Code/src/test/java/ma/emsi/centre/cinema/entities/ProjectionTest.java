@@ -75,6 +75,5 @@ class ProjectionTest {
         projection.setSeance(mockSeance);
         assertEquals(mockSeance, projection.getSeance());
     }
-
-    // Add more tests as needed for specific behavior or validation rules
+   
 }

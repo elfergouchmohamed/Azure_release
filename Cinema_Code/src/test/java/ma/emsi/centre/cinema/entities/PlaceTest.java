@@ -70,6 +70,5 @@ class PlaceTest {
         place.setTickets(expectedTickets);
         assertEquals(expectedTickets, place.getTickets());
     }
-
-    // Add more tests as needed for specific behavior or validation rules
+   
 }
