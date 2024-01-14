@@ -32,7 +32,7 @@ pipeline {
                         --resource-group ${AZURE_JENKINS_AGENT_RESOURCE_GROUP} 
 
                     '''
-                    sleep(time: 100, unit: 'SECONDS')
+                    sleep(time: 80, unit: 'SECONDS')
                 }
             }
         }
