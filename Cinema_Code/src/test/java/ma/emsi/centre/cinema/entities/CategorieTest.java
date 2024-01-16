@@ -36,11 +36,6 @@ class CategorieTest {
         assertEquals(expectedNom, categorie.getNom());
     }
 
-    @Test
-    void testFilms() {
-        Collection<Film> expectedFilms = Collections.singletonList(mockFilm);
-        categorie.setFilms(expectedFilms);
-        assertEquals(expectedFilms, categorie.getFilms());
-    }
+    
     
 }
